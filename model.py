@@ -83,11 +83,8 @@ class Board:
             if field.row == row and field.col == col:
                 return field.mined_neighbours
 
-    def is_mined(self, row, col):
-        for field in self._fields:
-            if field.row == row and field.col == col and field.isbomb:
-                return True
-        return False
+    def is_mined(self, field):
+        return field.isbomb
 
     def get_associated_fields(self, field):
         self.define_what_to_reveal(field, [field])

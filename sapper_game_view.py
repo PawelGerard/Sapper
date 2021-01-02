@@ -8,10 +8,11 @@ class Button:
         self.color_bg = color_bg
         self.color_font = color_font
         self.text = ''
-        self.icon = False
+        self.icon = ''
+        self.active = True
 
     def __str__(self):
-        return 'r: ' + str(self.row_pos) + ' c: ' + str(self.col_pos) + ' r_id: ' + str(self.row_id) + ' c_id: '\
+        return 'r: ' + str(self.row_pos) + ' c: ' + str(self.col_pos) + ' r_id: ' + str(self.row_id) + ' c_id: ' \
                + str(self.col_id)
 
 
@@ -40,9 +41,8 @@ class Game:
             pygame.display.update()
             self._clock.tick(20)
 
-
     def print_clock(self, time):
-        t = int((time-self._start_time)/1000)
+        t = int((time - self._start_time) / 1000)
         sec_val = t % 60
         sec = str(sec_val) if sec_val >= 10 else '0' + str(sec_val)
         min_val = t // 60
@@ -52,15 +52,18 @@ class Game:
         self._screen.blit(label, (100, 10))
 
     def draw_rects(self):
-        image = pygame.image.load('bomb.png')
+        image_bomb = pygame.image.load('bomb.png')
+        image_flag = pygame.image.load('flag.png')
         for button in self._buttons:
             pygame.draw.rect(self._screen, button.color_bg, (button.col_pos, button.row_pos, 25, 25))
-            if button.icon:
-                self._screen.blit(image, (button.col_pos + 4, button.row_pos + 4))
+            if button.icon == 'bomb':
+                self._screen.blit(image_bomb, (button.col_pos + 4, button.row_pos + 4))
+            if button.icon == 'flag':
+                self._screen.blit(image_flag, (button.col_pos + 4, button.row_pos + 4))
             elif button.text != '':
                 myfont = pygame.font.SysFont("Comic Sans MS", 22, bold=True)
                 label = myfont.render(str(button.text), True, button.color_font)
-                self._screen.blit(label, (button.col_pos+5, button.row_pos-3))
+                self._screen.blit(label, (button.col_pos + 5, button.row_pos - 3))
 
     def _create_buttons(self, board_size, panel_size):
         button_list = []
@@ -73,21 +76,33 @@ class Game:
                                                    (1 + button_size) * (j - 1)), (150, 150, 150), (0, 0, 0)))
         return screen_size, button_list
 
-    def edit_button(self, position, color_bg=(0, 0, 25), color_font=(0, 0, 0), icon=False, text=''):
+    def edit_button(self, position, color_bg=(0, 0, 25), color_font=(0, 0, 0), icon='', text=''):
         col_id, row_id = position
         for button in self._buttons:
             if button.col_id == col_id and button.row_id == row_id:
-                if color_bg != (0, 0, 25):
-                    button.color_bg = color_bg
-                if color_font != (0, 0, 0):
-                    button.color_font = color_font
-                if icon:
-                    button.icon = True
-                if text != '':
-                    button.text = text
+                if button.active or (button.icon == 'flag' and icon == 'flag'):
+                    if color_bg != (0, 0, 25):
+                        button.color_bg = color_bg
+                    if color_font != (0, 0, 0):
+                        button.color_font = color_font
+                        button.active = False  # fields are revealed so button shouldn't be active anymore
+                    if button.icon == 'flag' and icon == 'flag':  # flag can be replaced by clicking right button again
+                        button.icon = ''
+                        button.active = True
+                    elif icon:
+                        button.icon = icon
+                        button.active = False  # if there is already icon, button shouldn't be active anymore
+                    if text != '':
+                        button.text = text
+
+    def is_button_active(self, position):
+        col_id, row_id = position
+        for button in self._buttons:
+            if button.col_id == col_id and button.row_id == row_id:
+                return button.active
 
     def point_button(self, position):
         x, y = position
         for button in self._buttons:
-            if button.row_pos < y < button.row_pos + 25 and button.col_pos < x < button.col_pos + 25: #25 is button size
+            if button.row_pos < y < button.row_pos + 25 and button.col_pos < x < button.col_pos + 25:  # 25 is button size
                 return button.col_id, button.row_id
