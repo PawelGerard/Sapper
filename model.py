@@ -36,7 +36,6 @@ class Board:
         self._create_fields()
         self._mine_fields()
         self._define_neighborhood()
-        self._print_board()
 
     def _create_fields(self):
         for i in range(1, self._board_size + 1):

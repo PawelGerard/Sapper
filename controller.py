@@ -42,5 +42,5 @@ class Controller:
 
 
 if __name__ == '__main__':
-    c = Controller(15, 40)
+    c = Controller(15, 35)
     c.main()
