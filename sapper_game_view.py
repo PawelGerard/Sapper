@@ -18,9 +18,9 @@ class Button:
 
 class Game:
     def __init__(self, controller, board_size, number_of_mines):
-        self._controller = controller
+        self._controller = controller  # way to connect with control module
         self._number_of_mines = number_of_mines
-        self._panel_size = 50
+        self._panel_size = 50  # panel = top part of view with mines, emoticon and timer
         self.status = 'running'
         self._board_size, self._buttons = self._create_buttons(board_size, self._panel_size)
         pygame.init()
@@ -32,50 +32,58 @@ class Game:
         pygame.display.set_caption('Mine Sweeper')
         pygame.display.set_icon(_bomb_icon)
 
+    # main pygame loop
     def main(self):
         run = True
         while run:
             for event in pygame.event.get():
                 run = self._controller.action_on_click(event)
-            self._screen.fill((50, 50, 50))
-            self.draw_rects()
-            self.draw_face()
-            self.draw_number_of_mines()
+            self._screen.fill((0, 0, 0))
+            pygame.draw.rect(self._screen, (50, 50, 50), (1, 2, self._board_size - 2, 47))  # border of the panel
+            self._draw_rects()
+            self._draw_face()
+            self._draw_number_of_mines()
             if self.status == 'running':
                 self._time = pygame.time.get_ticks()
-            self.print_clock()
+            self._print_clock()
             pygame.display.update()
-            self._clock.tick(20)
+            self._clock.tick(20)  # 20 fps
 
-    def print_clock(self):
+    # format of clock MM:SS
+    def _print_clock(self):
         t = int((self._time - self._start_time) / 1000)
         sec_val = t % 60
         sec = str(sec_val) if sec_val >= 10 else '0' + str(sec_val)
         min_val = t // 60
         min = str(min_val) if min_val >= 10 else '0' + str(min_val)
-        myfont = pygame.font.SysFont("Times New Roman", 26, bold=True)
+        myfont = pygame.font.SysFont("comicsansms", 26, bold=True)
         label = myfont.render(str(min) + ':' + sec, False, (80, 0, 0))
-        self._screen.blit(label, (self._board_size - 70, 10))
+        self._screen.blit(label, (self._board_size - 82, 5))
 
-    def draw_rects(self):
+    # rects = buttons
+    def _draw_rects(self):
         image_bomb = pygame.image.load('bomb.png')
         image_flag = pygame.image.load('flag.png')
+        image_wrong_flag = pygame.image.load('false_bomb.png')
         for button in self._buttons:
             pygame.draw.rect(self._screen, button.color_bg, (button.col_pos, button.row_pos, 25, 25))
             if button.icon == 'bomb':
                 self._screen.blit(image_bomb, (button.col_pos + 4, button.row_pos + 4))
-            if button.icon == 'flag':
+            elif button.icon == 'flag':
                 self._screen.blit(image_flag, (button.col_pos + 4, button.row_pos + 4))
+            elif button.icon == 'false_bomb':
+                self._screen.blit(image_wrong_flag, (button.col_pos + 4, button.row_pos + 4))
             elif button.text != '':
                 myfont = pygame.font.SysFont("Comic Sans MS", 22, bold=True)
                 label = myfont.render(str(button.text), True, button.color_font)
                 self._screen.blit(label, (button.col_pos + 5, button.row_pos - 3))
 
-    def draw_face(self):
+    def _draw_face(self):
         img_sad = pygame.image.load('sad.png')
         img_smile = pygame.image.load('smile.png')
         img_happy = pygame.image.load('happy.png')
-        pygame.draw.rect(self._screen, (35, 35, 35), ((self._board_size - 40) / 2, 5, 40, 40))
+        pygame.draw.rect(self._screen, (0, 0, 0), ((self._board_size - 40) / 2, 5, 40, 40))  # border
+        pygame.draw.rect(self._screen, (30, 30, 30), ((self._board_size - 38) / 2, 6, 38, 38))
         if self.status == 'running':
             self._screen.blit(img_smile, ((self._board_size - 32) / 2, 9))
         elif self.status == 'loss':
@@ -83,14 +91,14 @@ class Game:
         elif self.status == 'win':
             self._screen.blit(img_happy, ((self._board_size - 32) / 2, 9))
 
-    def draw_number_of_mines(self):
+    def _draw_number_of_mines(self):
         number = 0
         for button in self._buttons:
             if button.icon == 'flag':
                 number += 1
-        myfont = pygame.font.SysFont("Times New Roman", 26, bold=True)
+        myfont = pygame.font.SysFont("comicsansms", 26, bold=True)
         label = myfont.render(str(self._number_of_mines - number), False, (80, 0, 0))
-        self._screen.blit(label, (10, 10))
+        self._screen.blit(label, (10, 5))
 
     def _create_buttons(self, board_size, panel_size):
         button_list = []
@@ -103,27 +111,26 @@ class Game:
                                                    (1 + button_size) * (j - 1))))
         return screen_size, button_list
 
-    def edit_button(self, position, color_bg=(0, 0, 25), color_font=(0, 0, 0), icon='', text=''):
+    def edit_button(self, position, color_bg=(150, 150, 150), color_font=(0, 0, 0), icon='', text='',
+                    reveal_mines=False):
         if self.status == 'running':
             col_id, row_id = position
             for button in self._buttons:
                 if button.col_id == col_id and button.row_id == row_id:
-                    if button.active or (button.icon == 'flag' and icon == 'flag'):
-                        if color_bg != (0, 0, 25):
-                            button.color_bg = color_bg
-                            button.active = False  # fields are revealed so button shouldn't be active anymore
-                        if color_font != (0, 0, 0):
-                            button.color_font = color_font
-                        if button.icon == 'flag' and icon == 'flag':  # flag can be replaced by clicking right button again
-                            button.icon = ''
-                            button.active = True
-                        elif icon == 'flag':
-                            button.icon = icon
-                            button.active = False  # if there is already icon, button shouldn't be active anymore
-                        elif icon == 'bomb':
-                            button.icon = icon
-                        if text != '':
-                            button.text = text
+                    if button.icon == 'flag' and icon == 'flag':
+                        button.icon = ''
+                        button.active = True  # to remove flag there is need to click right button again
+                        return True  # if button changed
+                    elif button.active:
+                        button.color_bg = color_bg
+                        button.color_font = color_font
+                        button.icon = icon
+                        button.text = text
+                        button.active = False
+                        return True  # if button changed
+                    elif reveal_mines:
+                        button.icon = icon
+        return False  # if button not changed
 
     def is_button_active(self, position):
         col_id, row_id = position
@@ -153,13 +160,21 @@ class Game:
         revealed_fields = 0
         all_fields = len(self._buttons)
         for button in self._buttons:
-            if not button.active:
+            if not button.active and button.icon != 'flag':
                 revealed_fields += 1
-        self.print_board()
-        print('all fields: ' + str(all_fields) + ' revealed: ' + str(revealed_fields) + ' mines: ' + str(self._number_of_mines))
         if all_fields == revealed_fields + self._number_of_mines:
             return True
         return False
+
+    def change_icon_of_wrong_guesses(self):
+        for button in self._buttons:
+            if button.icon == 'flag':
+                button.icon = 'false_bomb'
+
+    def change_mines_to_flags(self):
+        for button in self._buttons:
+            if button.active:
+                button.icon = 'flag'
 
     def print_board(self):
         for button in self._buttons:
