@@ -28,7 +28,7 @@ class Game:
         self._time = 0
         self._start_time = pygame.time.get_ticks()
         self._screen = pygame.display.set_mode((self._board_size, self._board_size + self._panel_size))
-        _bomb_icon = pygame.image.load('bomb_icon.png')
+        _bomb_icon = pygame.image.load('images/bomb_icon.png')
         pygame.display.set_caption('Mine Sweeper')
         pygame.display.set_icon(_bomb_icon)
 
@@ -62,9 +62,9 @@ class Game:
 
     # rects = buttons
     def _draw_rects(self):
-        image_bomb = pygame.image.load('bomb.png')
-        image_flag = pygame.image.load('flag.png')
-        image_wrong_flag = pygame.image.load('false_bomb.png')
+        image_bomb = pygame.image.load('images/bomb.png')
+        image_flag = pygame.image.load('images/flag.png')
+        image_wrong_flag = pygame.image.load('images/false_bomb.png')
         for button in self._buttons:
             pygame.draw.rect(self._screen, button.color_bg, (button.col_pos, button.row_pos, 25, 25))
             if button.icon == 'bomb':
@@ -79,9 +79,9 @@ class Game:
                 self._screen.blit(label, (button.col_pos + 5, button.row_pos - 3))
 
     def _draw_face(self):
-        img_sad = pygame.image.load('sad.png')
-        img_smile = pygame.image.load('smile.png')
-        img_happy = pygame.image.load('happy.png')
+        img_sad = pygame.image.load('images/sad.png')
+        img_smile = pygame.image.load('images/smile.png')
+        img_happy = pygame.image.load('images/happy.png')
         pygame.draw.rect(self._screen, (0, 0, 0), ((self._board_size - 40) / 2, 5, 40, 40))  # border
         pygame.draw.rect(self._screen, (30, 30, 30), ((self._board_size - 38) / 2, 6, 38, 38))
         if self.status == 'running':
