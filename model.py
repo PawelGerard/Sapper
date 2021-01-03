@@ -8,7 +8,7 @@ import random
 
 
 class Field:
-    def __init__(self, row, col):
+    def __init__(self, col, row):
         self.row = row
         self.col = col
         self.isbomb = False
@@ -23,7 +23,7 @@ class Field:
         return False
 
     def __str__(self):
-        return 'r: ' + str(self.row) + ' c: ' + str(self.col) + ' mined: ' + str(
+        return 'r: ' + str(self.col) + ' c: ' + str(self.row) +  ' mined: ' + str(
             self.isbomb) + ' mined_neighbours: ' + str(self.mined_neighbours)
 
 
@@ -68,7 +68,7 @@ class Board:
         else:
             mother_field.fields_to_reveal = result
 
-    def _print_board(self):
+    def print_board(self):
         for field in self._fields:
             print(field)
 
@@ -89,3 +89,18 @@ class Board:
     def get_associated_fields(self, field):
         self.define_what_to_reveal(field, [field])
         return field.fields_to_reveal
+
+    def get_all_mined_fields(self):
+        mined_fields = []
+        for field in self._fields:
+            if field.isbomb == True:
+                mined_fields.append(field)
+        return mined_fields
+
+    def reset_model(self):
+        for field in self._fields:
+            field.isbomb = False
+            field.mined_neighbours = 0
+        self._mine_fields()
+        self._define_neighborhood()
+
