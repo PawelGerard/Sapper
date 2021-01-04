@@ -71,5 +71,5 @@ class Controller:
 
 
 if __name__ == '__main__':
-    c = Controller(15, 20)  # Board size and number of mines can be change here. Board is always a square
+    c = Controller(10, 15)  # Board size and number of mines can be change here. Board is always a square
     c.main()

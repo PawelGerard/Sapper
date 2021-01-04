@@ -57,7 +57,7 @@ class Game:
         min_val = t // 60
         min = str(min_val) if min_val >= 10 else '0' + str(min_val)
         myfont = pygame.font.SysFont("comicsansms", 26, bold=True)
-        label = myfont.render(str(min) + ':' + sec, False, (80, 0, 0))
+        label = myfont.render(str(min) + ':' + sec, False, (140, 0, 0))
         self._screen.blit(label, (self._board_size - 82, 5))
 
     # rects = buttons
@@ -97,7 +97,7 @@ class Game:
             if button.icon == 'flag':
                 number += 1
         myfont = pygame.font.SysFont("comicsansms", 26, bold=True)
-        label = myfont.render(str(self._number_of_mines - number), False, (80, 0, 0))
+        label = myfont.render(str(self._number_of_mines - number), False, (140, 0, 0))
         self._screen.blit(label, (10, 5))
 
     def _create_buttons(self, board_size, panel_size):
